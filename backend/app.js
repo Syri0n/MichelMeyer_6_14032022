@@ -1,19 +1,20 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+const path = require("path");
 
-const sauceRoutes = require("./routes/sauces");
-const userRoutes = require("./routes/user");
+const saucesRoutes = require("./routes/sauces");
+const usersRoutes = require("./routes/users");
 
-mongoose
-  .connect(
-    "mongodb+srv://Syrion:p4w2d8bkwq@cluster0.y4267.mongodb.net/myFirstDatabase?retryWrites=true&w=majority", // connection à mongoDB
-    { useNewUrlParser: true, useUnifiedTopology: true }
-  )
+// connection à mongoDB
+mongoose.connect("mongodb+srv://Syrion:p4w2d8bkwq@cluster0.y4267.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
+    { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("Connexion à MongoDB réussie !"))
   .catch(() => console.log("Connexion à MongoDB échouée !"));
 
-const app = express();
+const app = express(); //initialise express
+
+app.use(express.json()); // donne accès au corps de la requête
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -25,12 +26,14 @@ app.use((req, res, next) => {
     "Access-Control-Allow-Methods",
     "GET, POST, PUT, DELETE, PATCH, OPTIONS"
   );
-  next();
+  next(); // Passe l'exécution au middleware suivant
 });
 
 app.use(bodyParser.json());
 
-app.use("/api/sauces/", sauceRoutes);
-app.use("/api/auth", userRoutes);
+app.use('/images', express.static(path.join(__dirname, 'images')));
+
+app.use("/api/sauces", saucesRoutes); //Pour chaque requête envoyé à images on sert ce dossier statique images
+app.use("/api/auth", usersRoutes);
 
 module.exports = app;
