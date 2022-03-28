@@ -1,16 +1,16 @@
-const Sauce = require("../models/sauces");
-const fs = require("fs"); //Permet d'avoir accès aux différentes opérations liées au système de fichiers
+const Sauce = require('../models/sauce');
+const fs = require('fs');
 
 exports.createSauce = (req, res, next) => {
-  const sauceObject = JSON.parse(req.body.sauce); //Récupère l'objet JSON de la sauce
-  delete sauceObject._id;
-  const sauce = new Sauce({
-  ...sauceObject, // L'opérateur spread ... est utilisé pour faire une copie de tous les éléments de sauceObject
-  imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}` //Génère l'URL de l'image en créant une chaîne dynamique de l'URL
-  });
-  sauce.save()
-    .then( () => res.status(201).json({ message: "Sauce enregistré !" }))
-    .catch((error) => res.status(400).json({ error }));
+  const sauceObject = JSON.parse(req.body.sauce);
+    delete req.body._id;
+    const sauce = new Sauce({
+        ...sauceObject,
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+    });
+    sauce.save()
+    .then(() => res.status(201).json({ message: 'Sauce enregistrée !'}))
+    .catch(error => res.status(400).json({ error }));
 };
 
 exports.modifySauce = (req, res, next) => {
@@ -50,14 +50,13 @@ exports.deleteSauce = (req, res, next) => {
 };
 
 exports.getOneSauce = (req, res, next) => {
-  Sauce.findOne({ _id: req.params.id })
-    .then((sauce) => res.status(200).json(sauce))
-    .catch((error) => res.status(404).json({ error }));
+    Sauce.findOne({ _id: req.params.id })
+    .then(sauce => res.status(200).json(sauce))
+    .catch(error => res.status(400).json({ error }));
 };
 
-exports.getAllSauce = (req, res, next) => {
-  Sauce.find()
-    .then((sauces) => res.status(200).json(sauces))
-    .catch((error) => res.status(400).json({ error }));
+exports.getAllSauces = (req, res, next) => {
+    Sauce.find()
+    .then( sauces => res.status(200).json(sauces))
+    .catch(error => res.status(400).json({ error }));
 };
-
