@@ -1,16 +1,17 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
+require("dotenv").config();
 
 const sauceRoutes = require("./routes/sauce");
 const userRoutes = require("./routes/user");
 
 // connection à mongoDB
 mongoose
-  .connect(
-    "mongodb+srv://Syrion:p4w2d8bkwq@cluster0.y4267.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
-    { useNewUrlParser: true, useUnifiedTopology: true }
-  )
+  .connect(process.env.SECRET_DB, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => console.log("Connexion à MongoDB réussie !"))
   .catch(() => console.log("Connexion à MongoDB échouée !"));
 
