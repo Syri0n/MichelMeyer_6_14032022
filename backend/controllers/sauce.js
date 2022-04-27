@@ -38,26 +38,25 @@ exports.modifySauce = (req, res, next) => {
           }
         : { ...req.body };
 
-      // si l'userId de la sauce modifiée est le même que l'userId de la sauce avant modification
       if (sauceObject.userId === sauce.userId) {
-        Sauce.findOne({ _id: req.params.id }) //Recherche la sauce avec cet Id
-          .then((sauce) => {
-            const filename = sauce.imageUrl.split("/images/")[1];
-            fs.unlink(`images/${filename}`, (err) => {
-              //supprime cette photo qui est donc l'ancienne
-              if (err) throw err;
-            });
-          })
-          .catch((error) => res.status(400).json({ error }));
-        // mettre à jour la sauce dans la base de donnée, on compare
-        // 1er argument : la sauce choisie, celle avec l'id envoyée dans la requête
-        // 2ème argument : nouvelle version de la sauce : celle modifiée renvoyée dans la requête, en modifiant l'id pour qu'il correspondant à celui des paramètres de requêtes
-        Sauce.updateOne(
-          { _id: req.params.id },
-          { ...sauceObject, _id: req.params.id }
-        )
-          .then(() => res.status(200).json({ message: "Sauce modifiée !" }))
-          .catch((error) => res.status(400).json({ error }));
+        Sauce.findOne({ _id: req.params.id }).then((sauce) => {
+          const filename = sauce.imageUrl.split("/images/")[1];
+          const sauceObject = req.file
+            ? {
+                ...fs.unlink(`images/${filename}`, () => {}),
+                ...JSON.parse(req.body.sauce),
+                imageUrl: `${req.protocol}://${req.get("host")}/images/${
+                  req.file.filename
+                }`,
+              }
+            : { ...req.body };
+          Sauce.updateOne(
+            { _id: req.params.id },
+            { ...sauceObject, _id: req.params.id }
+          )
+            .then(() => res.status(200).json({ message: "Sauce modifiée !" }))
+            .catch((error) => res.status(400).json({ error }));
+        });
       }
       // si les userId ne correspondent pas, on envoi une erreur 403 unauthorized
       else {
